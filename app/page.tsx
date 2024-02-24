@@ -4,7 +4,7 @@ import AddToCart from "./components/AddToCart";
 export default function Home() {
   return (
     <main>
-      <div>Test App!</div>
+      <h1>Test App!</h1>
       <AddToCart />
     </main>
   );
