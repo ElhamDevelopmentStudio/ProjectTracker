@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scheduler } from "timers/promises";
 import schema from "../../users/schema";
+import { prisma } from "@/prisma/client";
 
 interface Products {
   params: {
-    id: number;
+    id: string;
   };
 }
 
-export function GET(request: NextRequest, { params: { id } }: Products) {
-  return NextResponse.json({
-    id: id,
-    name: "Elham",
-    price: 12,
+export async function GET(request: NextRequest, { params: { id } }: Products) {
+  const product = await prisma.product.findUnique({
+    where: { id: parseInt(id) },
   });
+  return NextResponse.json(product);
 }
 
 export async function PUT(request: NextRequest, { params: { id } }: Products) {
@@ -22,11 +22,21 @@ export async function PUT(request: NextRequest, { params: { id } }: Products) {
   if (!validation.success) {
     return NextResponse.json(validation.error.errors);
   }
-  if (id > 10) {
+  const product = await prisma.product.findUnique({
+    where: { id: parseInt(id) },
+  });
+
+  if (!product) {
     return NextResponse.json(
       { error: "Product not found error" },
       { status: 404 }
     );
   }
-  return NextResponse.json({ id: id, name: body.name, price: body.price });
+
+  const updatedProduct = await prisma.product.update({
+    where: { id: parseInt(id) },
+    data: { name: body.name, price: body.price },
+  });
+
+  return NextResponse.json(updatedProduct);
 }

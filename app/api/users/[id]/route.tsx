@@ -1,17 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import schema from "../schema";
+import { prisma } from "@/prisma/client";
 
 interface Users {
   params: {
-    id: number;
+    id: string;
   };
 }
 
-export function GET(request: NextRequest, { params: { id } }: Users) {
-  if (id > 10) {
+export async function GET(request: NextRequest, { params: { id } }: Users) {
+  const user = await prisma.user.findUnique({
+    where: { id: parseInt(id) },
+  });
+  if (!user) {
     return NextResponse.json({ error: "User not found" });
   }
-  return NextResponse.json({ id, name: "Elhamullah Hossaini" });
+  return NextResponse.json(user);
 }
 
 export async function PUT(request: NextRequest, { params: { id } }: Users) {
@@ -19,14 +23,33 @@ export async function PUT(request: NextRequest, { params: { id } }: Users) {
   const validation = schema.safeParse(body);
   if (!validation.success)
     return NextResponse.json(validation.error.errors, { status: 400 });
-  if (id > 10) {
+  const user = await prisma.user.findUnique({
+    where: { id: parseInt(id) },
+  });
+  if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
-  return NextResponse.json({ id, name: body.name });
+  const UpdatedUser = await prisma.user.update({
+    where: { id: parseInt(id) },
+    data: {
+      name: body.name,
+      email: body.email,
+    },
+  });
+  return NextResponse.json(UpdatedUser);
 }
 
-export function DELETE(request: NextRequest, { params: { id } }: Users) {
-  if (id > 10)
+export async function DELETE(request: NextRequest, { params: { id } }: Users) {
+  const user = await prisma.user.findUnique({
+    where: { id: parseInt(id) },
+  });
+
+  if (!user)
     return NextResponse.json({ error: "User not found" }, { status: 404 });
-  return NextResponse.json({ message: "User deleted successfully" });
+
+  await prisma.user.delete({
+    where: { id: user.id },
+  });
+
+  return NextResponse.json({});
 }
