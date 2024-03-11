@@ -3,7 +3,6 @@ import React from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
-// NavBar component with TailwindCSS styling
 const NavBar = () => {
   const navItems = [
     { name: "Users", path: "/users" },
@@ -17,7 +16,7 @@ const NavBar = () => {
 
   return (
     <nav className="bg-gray-800 p-4 flex">
-      <a href="/" className={`${NavItemStyle} pr-16`}>
+      <a href="/" className={`${NavItemStyle} mr-16`}>
         Project Tracker
       </a>
       <ul className="flex list-none m-0 p-0">
